@@ -26,11 +26,9 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Settings',
 
     // Home page
-    'home.nextLesson': 'Next Lesson',
     'home.newGrades': 'New Grades',
     'home.noLessonsToday': 'No lessons scheduled for today',
     'home.noNewGrades': 'No new grades',
-    'home.noMoreLessonsToday': 'No more lessons today',
     'home.today': 'Today',
 
     // Profile
@@ -199,11 +197,9 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Ustawienia',
 
     // Home page
-    'home.nextLesson': 'Następna lekcja',
     'home.newGrades': 'Nowe oceny',
     'home.noLessonsToday': 'Brak lekcji na dziś',
     'home.noNewGrades': 'Brak nowych ocen',
-    'home.noMoreLessonsToday': 'Brak więcej lekcji na dziś',
     'home.today': 'Dziś',
 
     // Profile
@@ -372,11 +368,9 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Настройки',
 
     // Home page
-    'home.nextLesson': 'Следующий урок',
     'home.newGrades': 'Новые оценки',
     'home.noLessonsToday': 'На сегодня уроков нет',
     'home.noNewGrades': 'Новых оценок нет',
-    'home.noMoreLessonsToday': 'Больше уроков на сегодня нет',
     'home.today': 'Сегодня',
 
     // Profile
@@ -545,11 +539,9 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Налаштування',
 
     // Home page
-    'home.nextLesson': 'Наступний урок',
     'home.newGrades': 'Нові оцінки',
     'home.noLessonsToday': 'На сьогодні уроків немає',
     'home.noNewGrades': 'Нових оцінок немає',
-    'home.noMoreLessonsToday': 'Більше уроків на сьогодні немає',
     'home.today': 'Сьогодні',
 
     // Profile

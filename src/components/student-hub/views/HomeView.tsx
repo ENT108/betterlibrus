@@ -71,19 +71,6 @@ export function HomeView({ onOpenSheet }: Readonly<HomeViewProps>) {
     if (isLoading) {
         return (
             <div className="space-y-8">
-                <Section title={t('home.nextLesson')}>
-                    <div className="px-4 md:px-0">
-                        <div className="p-4 flex justify-between items-center rounded-lg border bg-card">
-                            <div className="space-y-2">
-                                <Skeleton className="h-5 w-32" />
-                                <Skeleton className="h-4 w-40" />
-                            </div>
-                            <div className="text-right space-y-2">
-                                <Skeleton className="h-5 w-24" />
-                            </div>
-                        </div>
-                    </div>
-                </Section>
                 <Section title={t('home.newGrades')}>
                     <div className="px-4 md:px-0">
                         <div className="p-4 rounded-lg border bg-card">
@@ -124,47 +111,25 @@ export function HomeView({ onOpenSheet }: Readonly<HomeViewProps>) {
         return hours * 60 + minutes;
     };
 
+    // Be tolerant to different separators: "-" or "–" and optional spaces
+    const parseTimeRange = (range: string): { start: number; end: number } | null => {
+        const match = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/.exec(range);
+        if (!match) return null;
+        const start = toMinutes(match[1]);
+        const end = toMinutes(match[2]);
+        return { start, end };
+    };
+
     const nowInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
-    const nextLesson = todaysLessons.find(lesson => {
-        const lessonStart = toMinutes(lesson.time.split(' - ')[0]);
-        return lessonStart > nowInMinutes;
-    });
-
     const currentLesson = todaysLessons.find(lesson => {
-        const [startTime, endTime] = lesson.time.split(' - ').map(toMinutes);
-        return nowInMinutes >= startTime && nowInMinutes <= endTime;
+        const range = parseTimeRange(lesson.time);
+        if (!range) return false;
+        return nowInMinutes >= range.start && nowInMinutes <= range.end;
     });
 
     return (
         <div className="space-y-8">
-            <Section title={t('home.nextLesson')}>
-                <div className="px-4 md:px-0">
-                    {nextLesson ? (
-                        <Card
-                            className="cursor-pointer transition-all hover:bg-card/80 hover:shadow-md"
-                            onClick={() => onOpenSheet(nextLesson)}
-                        >
-                            <CardContent className="p-4 flex justify-between items-center">
-                                <div>
-                                    <p className="font-bold">{nextLesson.subject}</p>
-                                    <p className="text-sm text-muted-foreground">{`${anonymizeName(nextLesson.teacher)} · ${nextLesson.room}`}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium">{nextLesson.time}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <Card className="bg-card/50">
-                            <CardContent className="p-8 text-center text-muted-foreground">
-                                <p>{t('home.noMoreLessonsToday')}</p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-            </Section>
-
             <Section title={t('home.newGrades')}>
                 <div className="px-4 md:px-0">
                     <NewGradesList grades={grades} onGradeClick={(grade) => onOpenSheet(grade)} />
