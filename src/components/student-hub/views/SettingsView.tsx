@@ -12,7 +12,7 @@ import { usePrivacy } from '@/contexts/PrivacyContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFont } from '@/contexts/FontContext';
 import { useRoundness } from '@/contexts/RoundnessContext';
-import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Settings, Palette, LogOut } from 'lucide-react';
+import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Settings, Palette, LogOut, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface UserProfile {
@@ -36,6 +36,45 @@ export function SettingsView() {
   const { selectedFont, setSelectedFont, fontOptions } = useFont();
   const { roundedMode, setRoundedMode } = useRoundness();
 
+  // Navigation visibility preferences
+  type NavView = 'Home' | 'Timetable' | 'Grades' | 'Absences' | 'Exams' | 'Messages' | 'Announcements';
+  const defaultNavVisibility: Record<NavView, boolean> = {
+    Home: true,
+    Timetable: true,
+    Grades: true,
+    Absences: true,
+    Exams: true,
+    Messages: true,
+    Announcements: true,
+  };
+  const [navVisibility, setNavVisibility] = useState<Record<NavView, boolean>>(defaultNavVisibility);
+  const profileSkeletonKeys = ['email', 'phone', 'class', 'educator', 'enrollment', 'address'] as const;
+  const preferenceSkeletonKeys = ['appearance', 'general'] as const;
+
+  useEffect(() => {
+    // Load nav visibility from localStorage
+    try {
+      const saved = localStorage.getItem('nav-visibility');
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<Record<NavView, boolean>>;
+        setNavVisibility({ ...defaultNavVisibility, ...parsed });
+      }
+    } catch (error) {
+      console.warn('Failed to read nav-visibility from localStorage', error);
+    }
+  }, []);
+
+  const persistNavVisibility = (next: Record<NavView, boolean>) => {
+    setNavVisibility(next);
+    try {
+      localStorage.setItem('nav-visibility', JSON.stringify(next));
+      // Inform other components within the same tab
+      window.dispatchEvent(new CustomEvent('nav-visibility-changed'));
+    } catch (error) {
+      console.warn('Failed to write nav-visibility to localStorage', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Call logout API
@@ -47,8 +86,10 @@ export function SettingsView() {
         // Redirect to login page
         window.location.href = '/login';
       } else {
+        console.warn('Logout request failed');
       }
     } catch (error) {
+      console.warn('Logout error', error);
     } finally {
       setShowLogoutConfirm(false);
     }
@@ -128,8 +169,8 @@ export function SettingsView() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-3">
+                  {profileSkeletonKeys.map((key) => (
+                    <div key={key} className="flex items-center gap-3">
                       <Skeleton className="h-4 w-4" />
                       <div className="space-y-1 flex-1">
                         <Skeleton className="h-3 w-16" />
@@ -146,8 +187,8 @@ export function SettingsView() {
         {/* Preferences Loading */}
         <Section title={t('settings.preferences')}>
           <div className="px-4 md:px-0 space-y-3">
-            {[...Array(2)].map((_, i) => (
-              <Card key={i} className="cursor-pointer">
+            {preferenceSkeletonKeys.map((key) => (
+              <Card key={key} className="cursor-pointer">
                 <CardContent className="p-4 flex items-center gap-3">
                   <Skeleton className="h-5 w-5" />
                   <div className="flex-1 space-y-1">
@@ -325,6 +366,44 @@ export function SettingsView() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Card className="cursor-pointer hover:bg-card/80 transition-colors">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <ListChecks className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{t('settings.navigation')}</p>
+                    <p className="text-sm text-muted-foreground">{t('settings.navigationDesc')}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-fit max-h-[80vh]">
+              <SheetHeader>
+                <SheetTitle>{t('settings.navigationTitle')}</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-4 mt-6">
+                {(
+                  Object.keys(defaultNavVisibility) as NavView[]
+                ).map((key) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <span className="font-medium">{t(`nav.${key.toLowerCase()}`)}</span>
+                    <Switch
+                      checked={!!navVisibility[key]}
+                      onCheckedChange={(checked) => {
+                        const next = { ...navVisibility, [key]: !!checked } as Record<NavView, boolean>;
+                        // Ensure at least one tab remains visible
+                        const anyVisible = Object.values(next).some(Boolean);
+                        if (!anyVisible) return;
+                        persistNavVisibility(next);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </SheetContent>
           </Sheet>

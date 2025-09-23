@@ -32,6 +32,7 @@ const translations: Record<Language, Record<string, string>> = {
     'home.noNewGrades': 'No new grades',
     'home.noMoreLessonsToday': 'No more lessons today',
     'home.today': 'Today',
+    'home.breakUntil': 'Break until',
 
     // Profile
     'profile.login': 'Login',
@@ -47,6 +48,9 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.appearanceDesc': "Customize the app's look and feel",
     'settings.general': 'General Settings',
     'settings.generalDesc': 'Language, time zone, and other preferences',
+    'settings.navigation': 'Navigation',
+    'settings.navigationDesc': 'Choose which tabs are visible',
+    'settings.navigationTitle': 'Navigation',
     'settings.privacyMode': 'Privacy Mode',
     'settings.privacyModeDesc': 'Replace all names with "John Doe" for privacy when sharing screen',
     'settings.appearanceSettings': 'Appearance Settings',
@@ -96,6 +100,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.notSpecified': 'Not specified',
     'common.untitled': 'Untitled',
     'common.noSubject': 'No Subject',
+    'common.new': 'New',
 
     // Grades
     'grades.noGrades': 'No grades available',
@@ -202,6 +207,7 @@ const translations: Record<Language, Record<string, string>> = {
     'home.noNewGrades': 'Brak nowych ocen',
     'home.noMoreLessonsToday': 'Brak więcej lekcji na dziś',
     'home.today': 'Dziś',
+    'home.breakUntil': 'Przerwa do',
 
     // Profile
     'profile.login': 'Login',
@@ -217,6 +223,9 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.appearanceDesc': 'Dostosuj wygląd aplikacji',
     'settings.general': 'Ustawienia ogólne',
     'settings.generalDesc': 'Język, strefa czasowa i inne preferencje',
+    'settings.navigation': 'Nawigacja',
+    'settings.navigationDesc': 'Wybierz, które zakładki są widoczne',
+    'settings.navigationTitle': 'Nawigacja',
     'settings.privacyMode': 'Tryb prywatności',
     'settings.privacyModeDesc': 'Zamień wszystkie nazwy na "John Doe" dla prywatności podczas udostępniania ekranu',
     'settings.appearanceSettings': 'Ustawienia wyglądu',
@@ -266,6 +275,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.notSpecified': 'Nie określono',
     'common.untitled': 'Bez tytułu',
     'common.noSubject': 'Brak tematu',
+    'common.new': 'Nowa',
 
     // Grades
     'grades.noGrades': 'Brak dostępnych ocen',
@@ -372,6 +382,7 @@ const translations: Record<Language, Record<string, string>> = {
     'home.noNewGrades': 'Новых оценок нет',
     'home.noMoreLessonsToday': 'Больше уроков на сегодня нет',
     'home.today': 'Сегодня',
+    'home.breakUntil': 'Перерыв до',
 
     // Profile
     'profile.login': 'Логин',
@@ -387,6 +398,9 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.appearanceDesc': 'Настройте внешний вид приложения',
     'settings.general': 'Общие настройки',
     'settings.generalDesc': 'Язык, часовой пояс и другие предпочтения',
+    'settings.navigation': 'Навигация',
+    'settings.navigationDesc': 'Выберите, какие вкладки отображать',
+    'settings.navigationTitle': 'Навигация',
     'settings.privacyMode': 'Режим конфиденциальности',
     'settings.privacyModeDesc': 'Заменить все имена на "John Doe" для конфиденциальности при демонстрации экрана',
     'settings.appearanceSettings': 'Настройки внешнего вида',
@@ -436,6 +450,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.notSpecified': 'Не указано',
     'common.untitled': 'Без названия',
     'common.noSubject': 'Без темы',
+    'common.new': 'Новое',
 
     // Grades
     'grades.noGrades': 'Нет доступных оценок',
@@ -542,6 +557,7 @@ const translations: Record<Language, Record<string, string>> = {
     'home.noNewGrades': 'Нових оцінок немає',
     'home.noMoreLessonsToday': 'Більше уроків на сьогодні немає',
     'home.today': 'Сьогодні',
+    'home.breakUntil': 'Перерва до',
 
     // Profile
     'profile.login': 'Логін',
@@ -557,6 +573,9 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.appearanceDesc': 'Налаштуйте зовнішній вигляд додатку',
     'settings.general': 'Загальні налаштування',
     'settings.generalDesc': 'Мова, часовий пояс та інші переваги',
+    'settings.navigation': 'Навігація',
+    'settings.navigationDesc': 'Оберіть, які вкладки відображати',
+    'settings.navigationTitle': 'Навігація',
     'settings.privacyMode': 'Режим конфіденційності',
     'settings.privacyModeDesc': 'Замінити всі імена на "John Doe" для конфіденційності під час демонстрації екрана',
     'settings.appearanceSettings': 'Налаштування зовнішнього вигляду',
@@ -606,6 +625,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.notSpecified': 'Не вказано',
     'common.untitled': 'Без назви',
     'common.noSubject': 'Без теми',
+    'common.new': 'Нове',
 
     // Grades
     'grades.noGrades': 'Немає доступних оцінок',
