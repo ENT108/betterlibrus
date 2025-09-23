@@ -58,6 +58,7 @@ export function HomeView({ onOpenSheet }: Readonly<HomeViewProps>) {
                 setGrades(gradesData);
                 setMessages(messagesResponse.messages || []);
             } catch (error) {
+                console.error("Failed to fetch data", error);
             } finally {
                 setIsLoading(false);
             }
@@ -124,60 +125,65 @@ export function HomeView({ onOpenSheet }: Readonly<HomeViewProps>) {
         return hours * 60 + minutes;
     };
 
+    // Support both hyphen and en dash separators and variable spaces
+    const parseTimeRange = (range: string): { start: number; end: number } | null => {
+        const match = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/.exec(range);
+        if (!match) return null;
+        return { start: toMinutes(match[1]), end: toMinutes(match[2]) };
+    };
+
     const nowInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
     const nextLesson = todaysLessons.find(lesson => {
-        const lessonStart = toMinutes(lesson.time.split(' - ')[0]);
-        return lessonStart > nowInMinutes;
+        const range = parseTimeRange(lesson.time);
+        if (!range) return false;
+        return range.start > nowInMinutes;
     });
 
-    const currentLesson = todaysLessons.find(lesson => {
-        const [startTime, endTime] = lesson.time.split(' - ').map(toMinutes);
-        return nowInMinutes >= startTime && nowInMinutes <= endTime;
-    });
+    const isLessonCurrent = (lesson: Lesson): boolean => {
+        const range = parseTimeRange(lesson.time);
+        if (!range) return false;
+        return nowInMinutes >= range.start && nowInMinutes <= range.end;
+    };
+
+    type BreakItem = { id: string; kind: 'break'; until: string };
+
+    const withBreakInserted = (): Array<Lesson | BreakItem> => {
+        const items: Array<Lesson | BreakItem> = [...todaysLessons];
+        const hasCurrent = todaysLessons.some(isLessonCurrent);
+        if (hasCurrent || !nextLesson) return items;
+
+        const nextIndex = todaysLessons.findIndex(l => l.id === nextLesson.id);
+        const untilTime = nextLesson.time.replace(/\s*[-–].*$/, '');
+        const breakItem: BreakItem = { id: `break-${nextLesson.id}`, kind: 'break', until: untilTime };
+        if (nextIndex >= 0) {
+            items.splice(nextIndex, 0, breakItem);
+        }
+        return items;
+    };
+    const displayItems = withBreakInserted();
+
+    const hasNewGrades = grades.some(sg => Array.isArray(sg.grades) && sg.grades.length > 0);
+    const unreadMessages = messages.filter(msg => !msg.read);
 
     return (
         <div className="space-y-8">
-            <Section title={t('home.nextLesson')}>
-                <div className="px-4 md:px-0">
-                    {nextLesson ? (
-                        <Card
-                            className="cursor-pointer transition-all hover:bg-card/80 hover:shadow-md"
-                            onClick={() => onOpenSheet(nextLesson)}
-                        >
-                            <CardContent className="p-4 flex justify-between items-center">
-                                <div>
-                                    <p className="font-bold">{nextLesson.subject}</p>
-                                    <p className="text-sm text-muted-foreground">{`${anonymizeName(nextLesson.teacher)} · ${nextLesson.room}`}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium">{nextLesson.time}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <Card className="bg-card/50">
-                            <CardContent className="p-8 text-center text-muted-foreground">
-                                <p>{t('home.noMoreLessonsToday')}</p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-            </Section>
 
-            <Section title={t('home.newGrades')}>
-                <div className="px-4 md:px-0">
-                    <NewGradesList grades={grades} onGradeClick={(grade) => onOpenSheet(grade)} />
-                </div>
-            </Section>
+            {hasNewGrades && (
+                <Section title={t('home.newGrades')}>
+                    <div className="px-4 md:px-0">
+                        <NewGradesList grades={grades} onGradeClick={(grade) => onOpenSheet(grade)} />
+                    </div>
+                </Section>
+            )}
 
-            <Section title={t('messages.unreadMessages')}>
-                <div className="px-4 md:px-0 space-y-3">
-                    {messages.filter(msg => !msg.read).length > 0 ? (
-                        messages.filter(msg => !msg.read).slice(0, 3).map(message => (
+            {unreadMessages.length > 0 && (
+                <Section title={t('messages.unreadMessages')}>
+                    <div className="px-4 md:px-0 space-y-3">
+                        {unreadMessages.slice(0, 3).map(message => (
                             <Card
                                 key={message.id}
-                                className="cursor-pointer transition-all hover:bg-card/80 hover:shadow-md border-primary/50 bg-accent/20"
+                                className="cursor-pointer transition-all hover:bg-card/80 hover:shadow-md border-primary bg-primary/10"
                                 onClick={() => onOpenSheet(message)}
                             >
                                 <CardContent className="p-4 flex justify-between items-center">
@@ -190,44 +196,51 @@ export function HomeView({ onOpenSheet }: Readonly<HomeViewProps>) {
                                     </div>
                                     <div className="text-right flex items-center gap-2">
                                         <p className="text-xs text-muted-foreground">{message.date}</p>
-                                        <Badge variant="secondary" className="text-xs">New</Badge>
+                                        <Badge className="text-xs bg-primary text-primary-foreground">{t('common.new')}</Badge>
                                     </div>
                                 </CardContent>
                             </Card>
-                        ))
-                    ) : (
-                        <Card className="bg-card/50">
-                            <CardContent className="p-8 text-center text-muted-foreground">
-                                <p>{t('messages.noMessages')}</p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-            </Section>
+                        ))}
+                    </div>
+                </Section>
+            )}
 
             <Section title={getDayName(todayKey)}>
                 <div className="px-4 md:px-0 space-y-3">
-                    {todaysLessons.length > 0 ? (
-                        todaysLessons.map(lesson => (
-                            <Card
-                                key={lesson.id}
-                                className={cn(
-                                    "cursor-pointer transition-all hover:bg-card/80 hover:shadow-md",
-                                    currentLesson?.id === lesson.id && "border-primary bg-primary/10"
-                                )}
-                                onClick={() => onOpenSheet(lesson)}
-                            >
-                                <CardContent className="p-4 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-bold">{lesson.subject}</p>
-                                        <p className="text-sm text-muted-foreground">{`${anonymizeName(lesson.teacher)} · ${lesson.room}`}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-medium">{lesson.time}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))
+                    {displayItems.length > 0 ? (
+                        displayItems.map(item => {
+                            if ((item as any).kind === 'break') {
+                                const br = item as BreakItem;
+                                return (
+                                    <Card key={br.id} className={cn("border-primary bg-primary/10")}>
+                                        <CardContent className="p-3 text-sm">
+                                            {t('home.breakUntil')} {br.until}
+                                        </CardContent>
+                                    </Card>
+                                );
+                            }
+                            const lesson = item as Lesson;
+                            return (
+                                <Card
+                                    key={lesson.id}
+                                    className={cn(
+                                        "cursor-pointer transition-all hover:bg-card/80 hover:shadow-md",
+                                        isLessonCurrent(lesson) && "border-primary bg-primary/10"
+                                    )}
+                                    onClick={() => onOpenSheet(lesson)}
+                                >
+                                    <CardContent className="p-4 flex justify-between items-center">
+                                        <div>
+                                            <p className="font-bold">{lesson.subject}</p>
+                                            <p className="text-sm text-muted-foreground">{`${anonymizeName(lesson.teacher)} · ${lesson.room}`}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-medium">{lesson.time}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })
                     ) : (
                         <Card className="bg-card/50">
                             <CardContent className="p-16 text-center text-muted-foreground">
